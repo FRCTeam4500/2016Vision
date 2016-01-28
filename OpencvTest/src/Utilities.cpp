@@ -65,7 +65,7 @@ Contour findContoursFromBinary(Mat binaryImage){
 	std::vector<std::vector<Point>> contours;
 	std::vector<Vec4i> hierarchy;
 
-	findContours(binaryImage, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_L1);
+	findContours(binaryImage, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
 
 
 
@@ -85,10 +85,8 @@ void drawContourList(Contour contours, Mat canvas){
 		}
 }
 
-Contour filterContours(Contour contours, double minArea, int minPerimeter, int minWidth, int maxWidth, int minHeight, int maxHeight, double solidity){
+Contour filterContours(Contour contours, double minArea, int minPerimeter, int minWidth, int maxWidth, int minHeight, int maxHeight, double minSolidity, double maxSolidity){
 	Contour acceptableContours;
-	//acceptableContours.contours = new std::vector<std::vector<Point>>();
-	//acceptableContours.hierarchy = new std::vector<Vec4i>();
 
 
 	for(int i = 0; i < contours.contours.size(); i++){
@@ -100,14 +98,18 @@ Contour filterContours(Contour contours, double minArea, int minPerimeter, int m
 
 				double hullArea = contourArea(hull);
 				double ratio = contourArea(contours.contours[i]) / hullArea;
-				if(hullArea != 0 && ratio <= solidity){
+				if(hullArea != 0 && ratio >= minSolidity && ratio <= maxSolidity){
 					acceptableContours.contours.push_back(contours.contours[i]);
 					acceptableContours.hierarchy.push_back(contours.hierarchy[i]);
 				}
 			}
 
 		}
+
+
 	}
+
+
 
 	return acceptableContours;
 
@@ -148,4 +150,53 @@ Mat combineTwoImages(Mat img1, Mat img2){
 	img2.copyTo(right);
 
 	return img3;
+}
+
+Contour approximateToPolygon(Contour contour){
+	Contour polygons;
+	polygons.hierarchy = contour.hierarchy;
+
+	for(int i = 0; i < contour.contours.size(); i++){
+		std::vector<Point> polygon;
+		approxPolyDP(contour.contours[i], polygon, 1.0, true);
+		polygons.contours.push_back(polygon);
+	}
+	return polygons;
+}
+
+
+Contour removeBumps(Contour contours, double maximumNeighborRatio){
+	Contour straightened_contours;
+	straightened_contours.hierarchy = contours.hierarchy;
+	for(int i = 0; i < contours.contours.size(); i++){
+		double perimeter = arcLength(contours.contours[i], false);
+		double perimeter_per_point = perimeter / contours.contours[i].size();
+		double* distances = new double[(unsigned int)(contours.contours[i].size()-1)];
+
+		for(int j = 0; j < contours.contours[i].size() - 1; j++){
+			distances[j] = norm(contours.contours[i][j] - contours.contours[i][j+1]);
+		}
+
+		std::vector<Point> straightened_contour;
+
+				//edge case for first point - will just ignore last point and add the first point again at the end
+		if(distances[0] >= maximumNeighborRatio * perimeter_per_point || distances[contours.contours[i].size()-1] >= maximumNeighborRatio * perimeter_per_point){
+			straightened_contour.push_back(contours.contours[i][0]);
+		}
+
+		for(int j = 1; j<contours.contours[i].size()-1; j++){
+			if(distances[j-1] >= maximumNeighborRatio * perimeter_per_point || distances[j] >= maximumNeighborRatio * perimeter_per_point){
+				straightened_contour.push_back(contours.contours[i][j]);
+			}
+		}
+
+
+
+		straightened_contour.push_back(straightened_contour.front()); //closes the contour
+		straightened_contours.contours.push_back(straightened_contour);
+		delete[] distances;
+	}
+
+	return straightened_contours;
+
 }

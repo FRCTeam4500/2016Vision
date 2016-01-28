@@ -49,9 +49,11 @@ int main( int argc, char** argv ){
 
 
 			Contour c = findContoursFromBinary(output);
-			Contour d = filterContours(c, 200.0, 0, 0, 1000, 0, 1000, .42);
+			Contour d = filterContours(c, 200.0, 0, 0, 1000, 0, 1000, 0, .42);
+			Contour e = approximateToPolygon(d);
+			Contour f = removeBumps(e, .3); //TODO: Make this work properly
 
-			drawContourList(d, image);
+			drawContourList(f, image);
 			saveImage(n, image, binaryImage);
 			printf("%d %d\n", n, d.contours.size());
 

@@ -43,11 +43,13 @@ cv::Mat multipleThreshold(cv::Mat image, int rlow, int rhigh, int glow, int ghig
 void singleThreshold(cv::Mat image, cv::Mat dest, int low, int high);
 Contour findContoursFromBinary(cv::Mat binaryImage);
 void drawContourList(Contour contours, cv::Mat canvas);
-Contour filterContours(Contour contours, double minArea, int minPerimeter, int minWidth, int maxWidth, int minHeight, int maxHeight, double solidity);
+Contour filterContours(Contour contours, double minArea, int minPerimeter, int minWidth, int maxWidth, int minHeight, int maxHeight, double minSolidity, double maxSolidity);
 void saveImage(int n, cv::Mat image, cv::Mat binary);
 cv::Mat floodFill(cv::Mat binaryImage);
 void removeHoles(cv::Mat image);
 cv::Mat combineTwoImages(cv::Mat img1, cv::Mat img2);
+Contour approximateToPolygon(Contour contour);
+Contour removeBumps(Contour contours, double maximumNeighborRatio);
 
 
 #endif /* SRC_UTILITIES_HPP_ */
