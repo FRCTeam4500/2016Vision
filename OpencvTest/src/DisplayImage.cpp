@@ -51,25 +51,28 @@ int main( int argc, char** argv ){
 			Contour c = findContoursFromBinary(output);
 			Contour d = filterContours(c, 200.0, 0, 0, 1000, 0, 1000, .1, .42);
 			Contour e = approximateToPolygon(d);
-			Contour f = removeBumps(e); //TODO: Make this work properly
+			Contour f = findCornersFromContour(e, .1745); //TODO: Make this work properly
 
 
 
 			std::vector<Point> bestContour = pickBestContour(f);
 			if(!bestContour.empty()){
-				std::vector<std::vector<Point>> tst;
-				tst.push_back(bestContour);
+				//std::vector<std::vector<Point>> tst;
+				Contour tst;
+				tst.contours.push_back(bestContour);
 
-				drawContours(image, tst, -1, Scalar(0, 0, 255));
-				saveImage(n, image);
-				/*Mat imageCopy(image.size(), image.type());
+
+
+				Mat imageCopy(image.size(), image.type());
 				image.copyTo(imageCopy);
 
+				drawContourList(imageCopy, tst);//, -1, Scalar(0, 0, 255));
 				drawContourPoints(image, e);
-				drawContourList(imageCopy, f);
-				saveImage(n, image, imageCopy, false);*/
-				printf("%d %d\n", n, d.contours.size());
+				saveImage(n, image, imageCopy, false);
+
 			}
+
+			printf("%d %d\n", n, d.contours.size());
 
 		}
 	}
@@ -78,3 +81,5 @@ int main( int argc, char** argv ){
 
 	return 0;
 }
+
+

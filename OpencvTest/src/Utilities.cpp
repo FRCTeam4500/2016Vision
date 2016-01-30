@@ -175,7 +175,7 @@ Contour approximateToPolygon(Contour contour){
 
 	for(int i = 0; i < contour.contours.size(); i++){
 		std::vector<Point> polygon;
-		approxPolyDP(contour.contours[i], polygon, 1.0, true);
+		approxPolyDP(contour.contours[i], polygon, 4.0, true);
 		polygons.contours.push_back(polygon);
 	}
 	return polygons;
@@ -295,3 +295,79 @@ std::vector<Point> pickBestContour(Contour contours){
 
 	return contours.contours[maxIndex];
 }
+
+Contour findCornersFromContour(Contour contours, double cutoffAngle){
+	double cosOfCutoffAngle = std::cos((long double) cutoffAngle);
+
+	std::vector<std::vector<Point>> newContours;
+	for(int i = 0; i < contours.contours.size(); i++){
+		if(contours.contours[i].size() < 8){
+			continue;
+		}
+		std::vector<Point> corners;
+
+		double* cosOfAngles = new double[contours.contours[i].size() - 1];
+
+		for(int j = 0; j < contours.contours[i].size() - 1; j++){
+
+			double v0x, v0y;
+			if(j == 0){
+				v0x = contours.contours[i][j].x - contours.contours[i][contours.contours[i].size() - 2].x; //because it has the first and last point same
+				v0y = contours.contours[i][j].y - contours.contours[i][contours.contours[i].size() - 2].y;
+			}else{
+				v0x = contours.contours[i][j].x - contours.contours[i][j-1].x;
+				v0y = contours.contours[i][j].y - contours.contours[i][j-1].y;
+			}
+
+
+			double v1x = contours.contours[i][j+1].x - contours.contours[i][j].x;
+			double v1y = contours.contours[i][j+1].y - contours.contours[i][j].y;
+
+
+
+
+			cosOfAngles[j] = ((v1x * v0x) + (v1y * v0y)) / std::sqrt((long double)((v1x*v1x + v1y*v1y) * (v0x*v0x + v0y*v0y)));
+
+			//if(cosOfAngle < cosOfCutoffAngle){
+			//	corners.push_back(contours.contours[i][j]);
+			//}
+
+		}
+
+		struct Comp{
+		    Comp( double* v ) : _v(v) {}
+		    bool operator ()(int a, int b) { return _v[a] > _v[b]; }
+		    const double* _v;
+		};
+
+		std::vector<int> indexArray;
+		indexArray.resize(contours.contours[i].size() - 1);
+		for( int k= 0; k<contours.contours[i].size() - 1; k++ ){
+			indexArray[k]= k;
+		}
+
+		partial_sort( indexArray.begin(), indexArray.begin()+8, indexArray.end(), Comp(cosOfAngles) );
+
+		for(int k = 0; k < 8; k++){
+			corners.push_back(contours.contours[i][k]);
+		}
+
+		corners.push_back(corners.front());
+		newContours.push_back(corners);
+		delete[] cosOfAngles;
+
+
+
+
+
+
+	}
+
+	Contour ret;
+	ret.contours = newContours;
+	ret.hierarchy = contours.hierarchy;
+
+	return ret;
+}
+
+

@@ -54,5 +54,6 @@ void drawContourPoints(cv::Mat img, Contour contours);
 void saveImage(int n, cv::Mat image, cv::Mat binary, bool shouldConvert);
 std::vector<cv::Point> pickBestContour(Contour contours);
 void saveImage(int n, cv::Mat image);
+Contour findCornersFromContour(Contour contours, double cutoffAngle);
 
 #endif /* SRC_UTILITIES_HPP_ */
