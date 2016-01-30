@@ -42,14 +42,17 @@ cv::Mat getFieldImage(int n);
 cv::Mat multipleThreshold(cv::Mat image, int rlow, int rhigh, int glow, int ghigh, int blow, int bhigh);
 void singleThreshold(cv::Mat image, cv::Mat dest, int low, int high);
 Contour findContoursFromBinary(cv::Mat binaryImage);
-void drawContourList(Contour contours, cv::Mat canvas);
+void drawContourList(cv::Mat canvas, Contour contours);
 Contour filterContours(Contour contours, double minArea, int minPerimeter, int minWidth, int maxWidth, int minHeight, int maxHeight, double minSolidity, double maxSolidity);
 void saveImage(int n, cv::Mat image, cv::Mat binary);
 cv::Mat floodFill(cv::Mat binaryImage);
 void removeHoles(cv::Mat image);
 cv::Mat combineTwoImages(cv::Mat img1, cv::Mat img2);
 Contour approximateToPolygon(Contour contour);
-Contour removeBumps(Contour contours, double maximumNeighborRatio);
-
+Contour removeBumps(Contour contours);
+void drawContourPoints(cv::Mat img, Contour contours);
+void saveImage(int n, cv::Mat image, cv::Mat binary, bool shouldConvert);
+std::vector<cv::Point> pickBestContour(Contour contours);
+void saveImage(int n, cv::Mat image);
 
 #endif /* SRC_UTILITIES_HPP_ */

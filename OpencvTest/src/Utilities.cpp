@@ -65,7 +65,7 @@ Contour findContoursFromBinary(Mat binaryImage){
 	std::vector<std::vector<Point>> contours;
 	std::vector<Vec4i> hierarchy;
 
-	findContours(binaryImage, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_KCOS);
+	findContours(binaryImage, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_L1);//_TC89_KCOS);
 
 
 
@@ -78,7 +78,7 @@ Contour findContoursFromBinary(Mat binaryImage){
 
 }
 
-void drawContourList(Contour contours, Mat canvas){
+void drawContourList(Mat canvas, Contour contours){
 	for(unsigned int i = 0; i < contours.contours.size(); i++){
 			Scalar color = Scalar(0, 0, 255);
 			drawContours(canvas, contours.contours, i, color, 1, 8, contours.hierarchy, 0, Point());
@@ -116,9 +116,26 @@ Contour filterContours(Contour contours, double minArea, int minPerimeter, int m
 
 }
 
+void saveImage(int n, Mat image){
+	imwrite((cv::String)("./AnalyzedImages/" + std::to_string(n) + ".jpg"), image);
+}
+
 void saveImage(int n, Mat image, Mat binary){
 	Mat RGB_binary;
 	cvtColor(binary, RGB_binary, CV_GRAY2BGR,3);
+
+	Mat tmp = combineTwoImages(image, RGB_binary);
+
+	imwrite((cv::String)("./AnalyzedImages/" + std::to_string(n) + ".jpg"), tmp);
+}
+
+void saveImage(int n, Mat image, Mat binary, bool shouldConvert){
+	Mat RGB_binary;
+	if(shouldConvert){
+		cvtColor(binary, RGB_binary, CV_GRAY2BGR,3);
+	}else{
+		RGB_binary = binary;
+	}
 
 	Mat tmp = combineTwoImages(image, RGB_binary);
 
@@ -165,12 +182,12 @@ Contour approximateToPolygon(Contour contour){
 }
 
 
-Contour removeBumps(Contour contours, double maximumNeighborRatio){
-	Contour straightened_contours;
+//Contour removeBumps(Contour contours, double maximumNeighborRatio){
+	/*Contour straightened_contours;
 	straightened_contours.hierarchy = contours.hierarchy;
 	for(int i = 0; i < contours.contours.size(); i++){
 		double perimeter = arcLength(contours.contours[i], false);
-		double perimeter_per_point = perimeter / contours.contours[i].size();
+		double perimeter_per_point = perimeter / 8;
 		double* distances = new double[(unsigned int)(contours.contours[i].size()-1)];
 
 		for(int j = 0; j < contours.contours[i].size() - 1; j++){
@@ -197,6 +214,84 @@ Contour removeBumps(Contour contours, double maximumNeighborRatio){
 		delete[] distances;
 	}
 
-	return straightened_contours;
+	return straightened_contours;*/
 
+//}
+
+Contour removeBumps(Contour contours){
+
+	Contour ret;
+	ret.hierarchy = contours.hierarchy;
+	for(int i = 0; i<contours.contours.size(); i++){
+		if(contours.contours[i].size() < 8){
+			continue;
+		}
+		std::vector<Point>  debumpedPoints;
+		Rect a = boundingRect(contours.contours[i]);
+
+		double maxEpsilon = a.width + a.height;
+		double epsilon = .05;//maxEpsilon / 2;
+		double minEpsilon = 0.0;
+
+		approxPolyDP(contours.contours[i], debumpedPoints, epsilon, true);
+		int k = 0;
+		while(debumpedPoints.size() != 8){
+			/*if(debumpedPoints.size() < 8){
+				maxEpsilon = epsilon;
+				epsilon = (epsilon + minEpsilon)/2 - .01;
+			}else{
+				minEpsilon = epsilon;
+				epsilon = (epsilon + maxEpsilon)/2 + .01;
+			}*/
+			epsilon += .5;
+
+			debumpedPoints.clear();
+			approxPolyDP(contours.contours[i], debumpedPoints, epsilon, true);
+
+			k++;
+			if(k > 100){
+				break;
+			}
+		}
+
+		ret.contours.push_back(debumpedPoints);
+	}
+
+
+	return ret;
+}
+
+void drawContourPoints(cv::Mat img, Contour contours){
+	Scalar color = Scalar(0, 0, 255);
+	for(int i = 0; i < contours.contours.size(); i++){
+		for(int j = 0; j < contours.contours[i].size(); j++){
+			circle(img, contours.contours[i][j], 2, color);
+		}
+	}
+}
+
+std::vector<Point> pickBestContour(Contour contours){
+	if(contours.contours.size() == 0){
+		std::vector<Point> a;
+		return a;
+	}
+	double* scores = new double[contours.contours.size()];
+	for(int i = 0; i<contours.contours.size(); i++){
+		double area = contourArea(contours.contours[i]);
+		Rect bounding = boundingRect(contours.contours[i]);
+		scores[i] = std::abs(((double)(bounding.width)) / bounding.height - 1.492) + std::abs(area/bounding.area() - .3143);
+	}
+
+	int maxIndex = 0;
+	double minScore = scores[0];
+	for(int i = 0; i<contours.contours.size(); i++){
+		if(scores[i] < minScore){
+		minScore = scores[i];
+			maxIndex = i;
+		}
+	}
+
+	delete[] scores;
+
+	return contours.contours[maxIndex];
 }
