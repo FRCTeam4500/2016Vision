@@ -41,24 +41,25 @@ int main( int argc, char** argv ){
 
 		if(image.data){
 
-			Mat output = multipleThreshold(image, 0, 255, 69, 255, 0, 255);
+			//Mat output = multipleThresholdRGB(image, 0, 255, 69, 255, 0, 255);
+			Mat output = multipleThresholdHSV(image, 0, 255, 0, 255, 0, 255);//multipleThresholdHSV(image, 185, 220, 0, 45, 40, 90);
 			Mat binaryImage(output.size(), CV_8UC3);
 			removeHoles(output);
 			output.copyTo(binaryImage);
 
 
 
-			Contour c = findContoursFromBinary(output);
+			/*Contour c = findContoursFromBinary(output);
 			Contour d = filterContours(c, 200.0, 0, 0, 1000, 0, 1000, .1, .42);
 			Contour e = approximateToPolygon(d);
-			Contour f = findCornersFromContour(e, .1745); //TODO: Make this work properly
+			Contour f = findCornersFromContour(e); //TODO: Make this work properly
 
 
 
-			std::vector<Point> bestContour = pickBestContour(f);
-			if(!bestContour.empty()){
+			std::vector<Point> bestContour = pickBestContour(f);*/
+			if(true){//!bestContour.empty()){
 				//std::vector<std::vector<Point>> tst;
-				Contour tst;
+				/*Contour tst;
 				tst.contours.push_back(bestContour);
 
 
@@ -66,13 +67,15 @@ int main( int argc, char** argv ){
 				Mat imageCopy(image.size(), image.type());
 				image.copyTo(imageCopy);
 
-				drawContourList(imageCopy, tst);//, -1, Scalar(0, 0, 255));
-				drawContourPoints(image, e);
-				saveImage(n, image, imageCopy, false);
+				drawContourList(imageCopy, f);//, -1, Scalar(0, 0, 255));
+				drawContourList(image, e);
+				saveImage(n, image, imageCopy, false);*/
+
+				saveImage(n, output);
 
 			}
 
-			printf("%d %d\n", n, d.contours.size());
+			//printf("%d %d\n", n, d.contours.size());
 
 		}
 	}

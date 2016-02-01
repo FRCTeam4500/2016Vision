@@ -14,7 +14,7 @@ Mat getFieldImage(int n){
 
 }
 
-Mat multipleThreshold(Mat image, int rlow, int rhigh, int glow, int ghigh, int blow, int bhigh){
+Mat multipleThresholdRGB(Mat image, int rlow, int rhigh, int glow, int ghigh, int blow, int bhigh){
 	/**
 	 * Assumes that the image is in BGR
 	 */
@@ -32,6 +32,27 @@ Mat multipleThreshold(Mat image, int rlow, int rhigh, int glow, int ghigh, int b
 	return tmp;
 
 
+}
+
+Mat multipleThresholdHSV(Mat image, int hlow, int hhigh, int slow, int shigh, int vlow, int vhigh){
+	/**
+	 * Assumes image starts off in rgb mode
+	 */
+
+	Mat imHSV;
+	cvtColor(image, imHSV, CV_BGR2HSV);
+
+	Mat channels[3];
+	split(imHSV, channels);
+
+	singleThreshold(channels[0], channels[0], hlow, hhigh);
+	singleThreshold(channels[1], channels[1], slow, shigh);
+	singleThreshold(channels[2], channels[2], vlow, vhigh);
+
+	Mat tmp;
+	bitwise_and(channels[0], channels[1], tmp);
+	bitwise_and(channels[2], tmp, tmp);
+	return tmp;
 }
 
 void singleThreshold(Mat image, Mat dest, int low, int high){
@@ -65,7 +86,7 @@ Contour findContoursFromBinary(Mat binaryImage){
 	std::vector<std::vector<Point>> contours;
 	std::vector<Vec4i> hierarchy;
 
-	findContours(binaryImage, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_TC89_L1);//_TC89_KCOS);
+	findContours(binaryImage, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);//_TC89_KCOS);
 
 
 
@@ -296,9 +317,20 @@ std::vector<Point> pickBestContour(Contour contours){
 	return contours.contours[maxIndex];
 }
 
-Contour findCornersFromContour(Contour contours, double cutoffAngle){
-	double cosOfCutoffAngle = std::cos((long double) cutoffAngle);
+struct Comp{
+	//std::vector<double> _v;
+	double *_v;
+	Comp(double *values){//std::vector<double> values){
+		_v = values;
+	}
 
+	bool operator ()(int a, int b){
+		return _v[a] < _v[b];
+	}
+};
+
+Contour findCornersFromContour(Contour contours){
+	double* kernel = getConvolutionKernel(KERNEL_SIZE);
 	std::vector<std::vector<Point>> newContours;
 	for(int i = 0; i < contours.contours.size(); i++){
 		if(contours.contours[i].size() < 8){
@@ -306,51 +338,52 @@ Contour findCornersFromContour(Contour contours, double cutoffAngle){
 		}
 		std::vector<Point> corners;
 
-		double* cosOfAngles = new double[contours.contours[i].size() - 1];
+		double* cosOfAngles = new double[contours.contours[i].size()];
+		//std::vector<double> cosOfAngles(contours.contours[i].size());
 
-		for(int j = 0; j < contours.contours[i].size() - 1; j++){
+		std::vector<int> indicies;
+
+		for(int j = 0; j < contours.contours[i].size(); j++){
 
 			double v0x, v0y;
 			if(j == 0){
-				v0x = contours.contours[i][j].x - contours.contours[i][contours.contours[i].size() - 2].x; //because it has the first and last point same
-				v0y = contours.contours[i][j].y - contours.contours[i][contours.contours[i].size() - 2].y;
+				v0x = contours.contours[i][j].x - contours.contours[i][contours.contours[i].size() - 1].x;
+				//because it has the first and last ARE NOT same
+				v0y = contours.contours[i][j].y - contours.contours[i][contours.contours[i].size() - 1].y;
 			}else{
 				v0x = contours.contours[i][j].x - contours.contours[i][j-1].x;
 				v0y = contours.contours[i][j].y - contours.contours[i][j-1].y;
 			}
 
 
-			double v1x = contours.contours[i][j+1].x - contours.contours[i][j].x;
-			double v1y = contours.contours[i][j+1].y - contours.contours[i][j].y;
+			double v1x = contours.contours[i][(j+1) % contours.contours[i].size()].x - contours.contours[i][j].x;
+			double v1y = contours.contours[i][(j+1) % contours.contours[i].size()].y - contours.contours[i][j].y;
 
 
 
 
-			cosOfAngles[j] = ((v1x * v0x) + (v1y * v0y)) / std::sqrt((long double)((v1x*v1x + v1y*v1y) * (v0x*v0x + v0y*v0y)));
+			cosOfAngles[j] = abs(((v1x * v0x) + (v1y * v0y)) / std::sqrt((long double)((v1x*v1x + v1y*v1y) * (v0x*v0x + v0y*v0y))));
 
-			//if(cosOfAngle < cosOfCutoffAngle){
-			//	corners.push_back(contours.contours[i][j]);
-			//}
+			indicies.push_back(j);
+
+
 
 		}
 
-		struct Comp{
-		    Comp( double* v ) : _v(v) {}
-		    bool operator ()(int a, int b) { return _v[a] > _v[b]; }
-		    const double* _v;
-		};
 
-		std::vector<int> indexArray;
-		indexArray.resize(contours.contours[i].size() - 1);
-		for( int k= 0; k<contours.contours[i].size() - 1; k++ ){
-			indexArray[k]= k;
-		}
 
-		partial_sort( indexArray.begin(), indexArray.begin()+8, indexArray.end(), Comp(cosOfAngles) );
+		std::sort(std::begin(indicies), std::end(indicies), Comp(cosOfAngles));
+		std::sort(std::begin(indicies), std::begin(indicies) + 8);
+
+
+
+
 
 		for(int k = 0; k < 8; k++){
-			corners.push_back(contours.contours[i][k]);
+			printf("(%d, %d) ", indicies[k], contours.contours[i].size());
+			corners.push_back(contours.contours[i][indicies[k]]);
 		}
+		printf("\n");
 
 		corners.push_back(corners.front());
 		newContours.push_back(corners);
@@ -366,8 +399,33 @@ Contour findCornersFromContour(Contour contours, double cutoffAngle){
 	Contour ret;
 	ret.contours = newContours;
 	ret.hierarchy = contours.hierarchy;
-
+	delete[] kernel;
 	return ret;
 }
 
+//try convolution with angle
+
+double* convolution1D(double* src, int length, double* kernel, int kernelSize){
+	double* convolution = new double[length];
+
+	for(int i = 0; i<length; i++){
+		convolution[i] = 0.0;
+		for(int j = 0; j<kernelSize; j++){
+			convolution[i] += kernel[j] * src[(i + j)%length];
+		}
+	}
+
+
+	return convolution;
+}
+
+double* getConvolutionKernel(int length){
+	double* kernel = new double[length];
+
+	for(int i = 0; i<length; i++){
+		kernel[i] = std::max(i, length - i);
+	}
+
+	return kernel;
+}
 

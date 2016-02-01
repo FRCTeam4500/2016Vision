@@ -32,6 +32,13 @@
 #include <stdlib.h>
 #endif
 
+#ifndef _ALGORITHM
+#define _ALGORITHM
+#include <algorithm>
+#endif
+
+#define KERNEL_SIZE 15
+
 struct Contour{
 	std::vector<std::vector<cv::Point>> contours;
 	std::vector<cv::Vec4i> hierarchy;
@@ -39,7 +46,8 @@ struct Contour{
 
 
 cv::Mat getFieldImage(int n);
-cv::Mat multipleThreshold(cv::Mat image, int rlow, int rhigh, int glow, int ghigh, int blow, int bhigh);
+cv::Mat multipleThresholdRGB(cv::Mat image, int rlow, int rhigh, int glow, int ghigh, int blow, int bhigh);
+cv::Mat multipleThresholdHSV(cv::Mat image, int hlow, int hhigh, int slow, int shigh, int vlow, int vhigh);
 void singleThreshold(cv::Mat image, cv::Mat dest, int low, int high);
 Contour findContoursFromBinary(cv::Mat binaryImage);
 void drawContourList(cv::Mat canvas, Contour contours);
@@ -54,6 +62,8 @@ void drawContourPoints(cv::Mat img, Contour contours);
 void saveImage(int n, cv::Mat image, cv::Mat binary, bool shouldConvert);
 std::vector<cv::Point> pickBestContour(Contour contours);
 void saveImage(int n, cv::Mat image);
-Contour findCornersFromContour(Contour contours, double cutoffAngle);
+Contour findCornersFromContour(Contour contours);
+double* convolution1D(double* src, int length, double* kernel, int kernelSize);
+double* getConvolutionKernel(int length);
 
 #endif /* SRC_UTILITIES_HPP_ */
