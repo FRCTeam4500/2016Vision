@@ -168,11 +168,11 @@ void removeHoles(Mat image){
 	//dilate(image, image, kernel, Point(-1, -1), 1);
 	//erode(image, image, kernel, Point(-1, -1), 1);
 
-	Mat kernel = Mat::ones(3, 1, CV_8UC1);
+	Mat kernel = Mat::ones(3, 1, (int)CV_8UC1);
 	dilate(image, image, kernel, Point(-1, -1), 3);
 	erode(image, image, kernel, Point(-1, -1), 3);
 
-	kernel = Mat::ones(1, 3, CV_8UC1);
+	kernel = Mat::ones(1, 3, (int)CV_8UC1);
 	dilate(image, image, kernel, Point(-1, -1), 3);
 	erode(image, image, kernel, Point(-1, -1), 3);
 }
@@ -181,7 +181,7 @@ Mat combineTwoImages(Mat img1, Mat img2){
 	Size sz1 = img1.size();
 	Size sz2 = img2.size();
 
-	Mat img3(sz1.height, sz1.width*2, CV_8UC3);
+	Mat img3(sz1.height, sz1.width*2, (int)CV_8UC3);
 	Mat left(img3, Rect(0, 0, sz1.width, sz1.height));
 	img1.copyTo(left);
 	Mat right(img3, Rect(sz1.width, 0, sz2.width, sz1.height));
