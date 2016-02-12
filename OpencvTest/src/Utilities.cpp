@@ -312,6 +312,8 @@ std::vector<Point> pickBestContour(Contour contours){
 		}
 	}
 
+	printf("Best Score: %f\n", scores[maxIndex]);
+
 	delete[] scores;
 
 	return contours.contours[maxIndex];
@@ -380,10 +382,9 @@ Contour findCornersFromContour(Contour contours){
 
 
 		for(int k = 0; k < 8; k++){
-			printf("(%d, %d) ", indicies[k], contours.contours[i].size());
 			corners.push_back(contours.contours[i][indicies[k]]);
 		}
-		printf("\n");
+
 
 		corners.push_back(corners.front());
 		newContours.push_back(corners);
@@ -428,4 +429,80 @@ double* getConvolutionKernel(int length){
 
 	return kernel;
 }
+
+Contour secondDerivative(Contour c){
+	/**
+	 * Make sure that the contour does not have the first point duplicated as the last point
+	 */
+	return derivative(derivative(c));
+}
+
+Contour derivative(Contour c){
+	/**
+	 * Make sure that the contour does not have the first point duplicated as the last point. Also does not divide by the distance between the points
+	 *Also converts the points from 2i to 2f
+	 */
+	Contour derivs;
+
+	for(int i = 0; i < c.contours.size(); i++){
+		std::vector<Point> deriv;
+		for(int j = 0; j < c.contours[i].size(); j++){
+			deriv.push_back(c.contours[i][j] - c.contours[i][j % c.contours[i].size()]);
+		}
+		derivs.contours.push_back(deriv);
+	}
+	derivs.hierarchy = c.hierarchy;
+	return derivs;
+
+
+}
+
+Point2d getCenter(std::vector<Point> contour){
+	Moments m = moments(contour);
+	Point_<double> centerOfMass;
+	centerOfMass.x = m.m10 / m.m00;
+	centerOfMass.y = m.m01 / m.m00;
+
+	return centerOfMass;
+}
+
+Point2d getAnglesFromCenter(Point2d center){
+	Point2f p;
+	p.x = std::atan(center.x / WIDTH * TAN_HALF_WIDTH_FOV);
+	p.y = std::atan(center.y / HEIGHT * TAN_HALF_HEIGHT_FOV);
+
+	return p;
+
+}
+
+ImageReport getImageReport(Mat image){
+	Mat output = multipleThresholdRGB(image, RMIN, RMAX, GMIN, GMAX, BMIN, BMAX);
+	removeHoles(output);
+
+	Contour c = findContoursFromBinary(output);
+	Contour d = filterContours(c, 200.0, 0, 0, 1000, 0, 1000, .1, .42);
+
+	std::vector<Point> bestContour = pickBestContour(d);
+
+	Point2d center = getCenter(bestContour);
+	Point2d ang = getAnglesFromCenter(center);
+
+	ImageReport report;
+	report.center = center;
+	report.angles = ang;
+	report.goalIsPresent = true;
+	report.bestContour.contours.push_back(bestContour);
+
+	return report;
+
+}
+
+int properModulus(int i, int j){
+	while(i < 0){
+		i += j;
+	}
+	i = i%j;
+	return i;
+}
+
 

@@ -38,10 +38,30 @@
 #endif
 
 #define KERNEL_SIZE 15
+#define WIDTH_FOV 60
+#define HEIGHT_FOV 45
+#define TAN_HALF_WIDTH_FOV .577
+#define TAN_HALF_HEIGHT_FOV .414
+#define WIDTH ((double)640)
+#define HEIGHT ((double)480)
+//0,211,143,257,0,210
+#define RMIN 0
+#define RMAX 211
+#define GMIN 143
+#define GMAX 256
+#define BMIN 0
+#define BMAX 210
 
 struct Contour{
 	std::vector<std::vector<cv::Point>> contours;
 	std::vector<cv::Vec4i> hierarchy;
+};
+
+struct ImageReport{
+	cv::Point2d center;
+	cv::Point2d angles;
+	bool goalIsPresent;
+	Contour bestContour;
 };
 
 
@@ -65,5 +85,13 @@ void saveImage(int n, cv::Mat image);
 Contour findCornersFromContour(Contour contours);
 double* convolution1D(double* src, int length, double* kernel, int kernelSize);
 double* getConvolutionKernel(int length);
+Contour secondDerivative(Contour c);
+Contour derivative(Contour c);
+cv::Point2d getCenter(std::vector<cv::Point> contour);
+cv::Point2d getAnglesFromCenter(cv::Point2d center);
+ImageReport getImageReport(cv::Mat image);
+
+
+int properModulus(int i, int j);
 
 #endif /* SRC_UTILITIES_HPP_ */

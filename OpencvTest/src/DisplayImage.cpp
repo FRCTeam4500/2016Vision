@@ -13,6 +13,11 @@
 #include <opencv2/opencv.hpp>
 #endif
 
+#ifndef _VIDEOIO_HPP
+#define _VIDEOIO_HPP
+#include <opencv2/videoio.hpp>
+#endif
+
 #ifndef _STRING
 #define _STRING
 #include <string>
@@ -34,50 +39,80 @@ using namespace cv;
 
 
 int main( int argc, char** argv ){
-
-	for(int n = 0; n<700; n++){
+	/*int change = 1;
+	//for(int n = 0; n < 700; n++){
+	for(int n = 0; true; n = properModulus(n + change, 600)){
 		Mat image;
 		image = getFieldImage(n);
 
+
+
+		Scalar color(0, 0, 255);
+
 		if(image.data){
-
-			//Mat output = multipleThresholdRGB(image, 0, 255, 69, 255, 0, 255);
-			Mat output = multipleThresholdHSV(image, 0, 255, 0, 255, 0, 255);//multipleThresholdHSV(image, 185, 220, 0, 45, 40, 90);
-			Mat binaryImage(output.size(), CV_8UC3);
-			removeHoles(output);
-			output.copyTo(binaryImage);
+			printf("%d:  ", n);
+			ImageReport report = getImageReport(image);
 
 
 
-			/*Contour c = findContoursFromBinary(output);
-			Contour d = filterContours(c, 200.0, 0, 0, 1000, 0, 1000, .1, .42);
-			Contour e = approximateToPolygon(d);
-			Contour f = findCornersFromContour(e); //TODO: Make this work properly
 
 
+			circle(image, report.center, 3, color, 3);
+			drawContourList(image, report.bestContour);
+			imshow("image", image);
+			int key = waitKey(0);
 
-			std::vector<Point> bestContour = pickBestContour(f);*/
-			if(true){//!bestContour.empty()){
-				//std::vector<std::vector<Point>> tst;
-				/*Contour tst;
-				tst.contours.push_back(bestContour);
-
-
-
-				Mat imageCopy(image.size(), image.type());
-				image.copyTo(imageCopy);
-
-				drawContourList(imageCopy, f);//, -1, Scalar(0, 0, 255));
-				drawContourList(image, e);
-				saveImage(n, image, imageCopy, false);*/
-
-				saveImage(n, output);
+			if((key & 0xFF) == 'q'){
+				change = -1;
 
 			}
+			if((key & 0xFF) == 'w'){
+				change = 1;
+			}
 
-			//printf("%d %d\n", n, d.contours.size());
+			if((key & 0xFF) == 'e'){
+				break;
+			}
 
 		}
+	}*/
+	VideoCapture usbCam(1);
+
+	usbCam.set(CV_CAP_PROP_BRIGHTNESS, .05);
+
+	/*int rmin = 0, rmax = 257, gmin = 0, gmax = 257, bmin = 0, bmax = 257;
+	namedWindow("Trackbar", 1);
+	createTrackbar("rmin", "Trackbar", &rmin, 257);
+	createTrackbar("rmax", "Trackbar", &rmax, 257);
+	createTrackbar("gmin", "Trackbar", &gmin, 257);
+	createTrackbar("gmax", "Trackbar", &gmax, 257);
+	createTrackbar("bmin", "Trackbar", &bmin, 257);
+	createTrackbar("bmax", "Trackbar", &bmax, 257);*/
+
+
+	Mat img;
+	while(true){
+
+		usbCam.read(img);
+		//Mat output = multipleThresholdRGB(img, rmin-1, rmax, gmin-1, gmax, bmin-1, bmax);
+
+
+		//imshow("output", output);
+
+		ImageReport report = getImageReport(img);
+
+		drawContourList(img, report.bestContour);
+		circle(img, report.center, 3, Scalar(0, 0, 255), 3);
+		imshow("image", img);
+
+		int key = waitKey(1);
+
+		if((key&0xFF) == 113){
+			break;
+		}
+
+
+
 	}
 
 
