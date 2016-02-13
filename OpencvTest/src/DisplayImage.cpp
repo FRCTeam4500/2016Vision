@@ -1,44 +1,75 @@
-#ifndef _CORE_HPP
-#define _CORE_HPP
+#ifndef _INCLUDE_CORE_HPP
+#define _INCLUDE_CORE_HPP
 #include <opencv2/core/core.hpp>
 #endif
 
-#ifndef _HIGHGUI_HPP
-#define _HIGHGUI_HPP
+#ifndef _INCLUDE_HIGHGUI_HPP
+#define _INCLUDE_HIGHGUI_HPP
 #include <opencv2/highgui/highgui.hpp>
 #endif
 
-#ifndef _OPENCV_HPP
-#define _OPENCV_HPP
+#ifndef _INCLUDE_OPENCV_HPP
+#define _INCLUDE_OPENCV_HPP
 #include <opencv2/opencv.hpp>
 #endif
 
-#ifndef _VIDEOIO_HPP
-#define _VIDEOIO_HPP
+#ifndef _INCLUDE_VIDEOIO_HPP
+#define _INCLUDE_VIDEOIO_HPP
 #include <opencv2/videoio.hpp>
 #endif
 
-#ifndef _STRING
-#define _STRING
+#ifndef _INCLUDE_STRING
+#define _INCLUDE_STRING
 #include <string>
 #endif
 
-#ifndef _STDLIB
-#define _STDLIB
+#ifndef _INCLUDE_STDLIB
+#define _INCLUDE_STDLIB
 #include <stdlib.h>
 #endif
 
-#ifndef _UTILITIES_HPP
-#define _UTILITIES_HPP
+#ifndef _INCLUDE_UTILITIES_HPP
+#define _INCLUDE_UTILITIES_HPP
 #include "Utilities.hpp"
 #endif
 
+#ifndef _INCLUDE_SERVER_HPP
+#define _INCLUDE_SERVER_HPP
+#include "server.hpp"
+#endif
+
+#ifndef _INCLUDE_IOSTREAM
+#define _INCLUDE_IOSTREAM
+#include <iostream>
+#endif
+
+#ifndef _INCLUDE_CSTRING
+#define _INCLUDE_CSTRING
+#include <cstring>      // Needed for memset
+#endif
+
+#ifndef _INCLUDE_SOCKET_H
+#define _INCLUDE_SOCKET_H
+#include <sys/socket.h> // Needed for the socket functions
+#endif
+
+#ifndef _INCLUDE_NETDB_H
+#define _INCLUDE_NETDB_H
+#include <netdb.h>      // Needed for the socket functions
+#endif
 
 using namespace cv;
 
 
 
 int main( int argc, char** argv ){
+
+
+
+
+
+
+
 	/*int change = 1;
 	//for(int n = 0; n < 700; n++){
 	for(int n = 0; true; n = properModulus(n + change, 600)){
@@ -76,9 +107,7 @@ int main( int argc, char** argv ){
 
 		}
 	}*/
-	VideoCapture usbCam(1);
 
-	usbCam.set(CV_CAP_PROP_BRIGHTNESS, .05);
 
 	/*int rmin = 0, rmax = 257, gmin = 0, gmax = 257, bmin = 0, bmax = 257;
 	namedWindow("Trackbar", 1);
@@ -90,6 +119,10 @@ int main( int argc, char** argv ){
 	createTrackbar("bmax", "Trackbar", &bmax, 257);*/
 
 
+	/*
+	VideoCapture usbCam(1);
+
+	usbCam.set(CV_CAP_PROP_BRIGHTNESS, .05);
 	Mat img;
 	while(true){
 
@@ -113,7 +146,7 @@ int main( int argc, char** argv ){
 
 
 
-	}
+	}*/
 
 
 

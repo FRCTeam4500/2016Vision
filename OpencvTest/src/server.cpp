@@ -6,13 +6,14 @@
  */
 
 
-#ifndef _SERVER_HPP
-#define _SERVER_HPP
+#ifndef _INCLUDE_SERVER_HPP
+#define _INCLUDE_SERVER_HPP
 #include "server.hpp"
 #endif
 
+
+
 void serve(ImageReport** report){
-	int status;
 
 }
 

@@ -5,13 +5,25 @@
  *      Author: aditya
  */
 
-#ifndef SRC_SERVER_HPP_
-#define SRC_SERVER_HPP_
+#ifndef _SERVER_HPP_
+#define _SERVER_HPP_
 
-#ifndef _SOCKET
-#define _SOCKET
+#ifndef _INCLUDE_SOCKET_H
+#define _INCLUDE_SOCKET_H
 #include <sys/socket.h>
 #endif
 
+#ifndef _INCLUDE_NETDB_H
+#define _INCLUDE_NETDB_H
+#include <netdb.h>
+#endif
+
+#ifndef _INCLUDE_UTILITIES_HPP
+#define _INCLUDE_UTILITIES_HPP
+#include "Utilities.hpp"
+#endif
+
+
+void serve(ImageReport** report);
 
 #endif /* SRC_SERVER_HPP_ */

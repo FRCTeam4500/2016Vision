@@ -7,33 +7,33 @@
 
 #ifndef SRC_UTILITIES_HPP_
 #define SRC_UTILITIES_HPP_
-#ifndef _CORE_HPP
-#define _CORE_HPP
+#ifndef _INCLUDE_CORE_HPP
+#define _INCLUDE_CORE_HPP
 #include <opencv2/core/core.hpp>
 #endif
 
-#ifndef _HIGHGUI_HPP
-#define _HIGHGUI_HPP
+#ifndef _INCLUDE_HIGHGUI_HPP
+#define _INCLUDE_HIGHGUI_HPP
 #include <opencv2/highgui/highgui.hpp>
 #endif
 
-#ifndef _OPENCV_HPP
-#define _OPENCV_HPP
+#ifndef _INCLUDE_OPENCV_HPP
+#define _INCLUDE_OPENCV_HPP
 #include <opencv2/opencv.hpp>
 #endif
 
-#ifndef _STRING
-#define _STRING
+#ifndef _INCLUDE_STRING
+#define _INCLUDE_STRING
 #include <string>
 #endif
 
-#ifndef _STDLIB
-#define _STDLIB
+#ifndef _INCLUDE_STDLIB_H
+#define _INCLUDE_STDLIB_H
 #include <stdlib.h>
 #endif
 
-#ifndef _ALGORITHM
-#define _ALGORITHM
+#ifndef _INCLUDE_ALGORITHM
+#define _INCLUDE_ALGORITHM
 #include <algorithm>
 #endif
 
