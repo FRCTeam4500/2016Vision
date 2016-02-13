@@ -24,7 +24,7 @@ SocketServer::SocketServer(std::string port) {
 	this->port = port;
 
 	// Now fill up the linked list of host_info structs with google's address information.
-	status = getaddrinfo(NULL, port, &host_info, &host_info_list);
+	status = getaddrinfo(NULL, port.c_str(), &host_info, &host_info_list);
 
 
 	this->socketfd = socket(host_info_list->ai_family, host_info_list->ai_socktype,
@@ -34,18 +34,18 @@ SocketServer::SocketServer(std::string port) {
 	status = setsockopt(socketfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 	status = bind(socketfd, host_info_list->ai_addr, host_info_list->ai_addrlen);
 
-	socklen_t addr_size = sizeof(their_addr);
+	addr_size = sizeof(their_addr);
 
 	last_int = 0;
 
 }
 
 void SocketServer::listen(int n){
-	status =  listen(socketfd, n);
+	status =  ::listen(socketfd, n);
 }
 
 void SocketServer::accept(){
-	new_sd = accept(socketfd, (struct sockaddr *)&their_addr, &addr_size);
+	new_sd = ::accept(socketfd, (struct sockaddr *)&their_addr, &addr_size);
 }
 
 bool SocketServer::recieveInt(){
@@ -67,12 +67,23 @@ bool SocketServer::recieveInt(){
 
 }
 
+void SocketServer::sendDouble(double data){
+	char * doubleString = (char *)(&data);
+	ssize_t bytes_sent = send(new_sd, doubleString, 8, 0);
+}
+
 int SocketServer::getLastInt(){
 	return last_int;
 }
 
+void SocketServer::closeClient(){
+	close(new_sd);
+}
+
 
 SocketServer::~SocketServer() {
-	// TODO Auto-generated destructor stub
+	::freeaddrinfo(host_info_list);
+	close(socketfd);
+	closeClient();
 }
 

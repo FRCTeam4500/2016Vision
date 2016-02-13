@@ -38,6 +38,11 @@
 #include <unistd.h>
 #endif
 
+#ifndef _INCLUDE_SOCKETSERVER_H
+#define _INCLUDE_SOCKETSERVER_H
+#include "SocketServer.h"
+#endif
+
 void serve(ImageReport** report);
 
 #endif /* SRC_SERVER_HPP_ */

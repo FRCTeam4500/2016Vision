@@ -14,34 +14,32 @@
 #define PORTNUM 1234
 
 void serve(ImageReport** report){
+	SocketServer s("1234");
+	s.listen(5);
 
+	while(true){
+		s.accept();
+		while(true){
 
+			if(!s.recieveInt()){	//if the client closes the connection
+				s.closeClient();
+				break;
+			}
 
-
-	std::cout << "Setting up the structs..."  << std::endl;
-
-
-	ssize_t bytes_recieved;
-	char incomming_data_buffer[1];
-	bytes_recieved = recv(new_sd, incomming_data_buffer, 1, 0);
-	// If no data arrives, the program will just wait here until some data arrives.
-	if (bytes_recieved == 0) std::cout << "host shut down." << std::endl ;
-	if (bytes_recieved == -1)std::cout << "recieve error!" << std::endl ;
-
-
-
-
-	std::cout << "send()ing back a message..."  << std::endl;
-	char *msg = "thank you.";
-	int len;
-	ssize_t bytes_sent;
-	len = strlen(msg);
-	bytes_sent = send(new_sd, msg, len, 0);
-
-	std::cout << "Stopping server..." << std::endl;
-	freeaddrinfo(host_info_list);
-	close(new_sd);
-	close(socketfd);
+			int needed = s.getLastInt();
+			if(needed == 0){
+				s.sendDouble((*report) -> angles.y);
+			}else if(needed == 1){
+				s.sendDouble((*report) -> angles.x);
+			}else if(needed == 2){
+				if((*report) -> goalIsPresent){
+					s.sendDouble(0.0);
+				}else{
+					s.sendDouble(1.0);
+				}
+			}
+		}
+	}
 
 }
 

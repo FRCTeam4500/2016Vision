@@ -58,14 +58,15 @@
 #include <netdb.h>      // Needed for the socket functions
 #endif
 
+
+
 using namespace cv;
 
 
 
 int main( int argc, char** argv ){
+	serve((ImageReport **)0);
 
-
-	serve((ImageReport **) 0);
 
 
 
