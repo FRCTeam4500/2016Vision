@@ -23,6 +23,15 @@
 #include "Utilities.hpp"
 #endif
 
+#ifndef _INCLUDE_IOSTREAM
+#define _INCLUDE_IOSTREAM
+#include <iostream>
+#endif
+
+#ifndef _INCLUDE_CSTRING
+#define _INCLUDE_CSTRING
+#include <cstring>      // Needed for memset
+#endif
 
 void serve(ImageReport** report);
 
