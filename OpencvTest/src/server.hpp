@@ -33,6 +33,11 @@
 #include <cstring>      // Needed for memset
 #endif
 
+#ifndef _INCLUDE_UNISTD_H
+#define _INCLUDE_UNISTD_H
+#include <unistd.h>
+#endif
+
 void serve(ImageReport** report);
 
 #endif /* SRC_SERVER_HPP_ */
