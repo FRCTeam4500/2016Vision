@@ -59,14 +59,64 @@
 #endif
 
 
+#ifndef _INCLUDE_THREAD
+#define _INCLUDE_THREAD
+#include <thread>
+#endif
 
 using namespace cv;
 
-
+struct DoubleReportBuffer{
+	bool first = true;
+	ImageReport firstReport;
+	ImageReport secondReport;
+	ImageReport * location;
+	void set(ImageReport a){
+		if(first){
+			first = false;
+			firstReport = a;
+			location = &firstReport;
+		}else{
+			first = true;
+			secondReport = a;
+			location = &secondReport;
+		}
+	}
+};
 
 int main( int argc, char** argv ){
-	serve((ImageReport **)0);
+	DoubleReportBuffer reportBuffer;
 
+	std::thread server (serve, &reportBuffer.location);
+	server.detach();
+
+	VideoCapture usbCam(0);
+
+	usbCam.set(CV_CAP_PROP_BRIGHTNESS, .05);
+	Mat img;
+	ImageReport r;
+	r.angles = Point2d(100.0, 0.0);
+	reportBuffer.set(r);
+	while(true){
+		usbCam.read(img);
+
+		imshow("image", img);
+
+		int key = waitKey(1);
+
+		if((key&0xFF) == 113){
+			break;
+		}
+
+		ImageReport report = getImageReport(img);
+
+		reportBuffer.set(report);
+
+
+
+
+
+	}
 
 
 

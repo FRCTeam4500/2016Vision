@@ -58,7 +58,7 @@ public:
 
 	void listen(int n);
 	void accept();
-	bool recieveInt();
+	bool recieveInt(); //TODO: Make sure that java is sending ints
 	int getLastInt();
 	void sendDouble(double data);
 	void closeClient();

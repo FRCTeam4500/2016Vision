@@ -11,6 +11,8 @@
 #include "server.hpp"
 #endif
 
+
+
 #define PORTNUM 1234
 
 void serve(ImageReport** report){
@@ -19,14 +21,17 @@ void serve(ImageReport** report){
 
 	while(true){
 		s.accept();
+		printf("Accepted\n");
 		while(true){
 
 			if(!s.recieveInt()){	//if the client closes the connection
 				s.closeClient();
 				break;
 			}
+			printf("Recieved\n");
 
 			int needed = s.getLastInt();
+			printf("%d\n", needed);
 			if(needed == 0){
 				s.sendDouble((*report) -> angles.y);
 			}else if(needed == 1){
