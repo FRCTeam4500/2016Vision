@@ -49,7 +49,7 @@ private:
 	int socketfd ; // The socket descripter
 	int new_sd;
 	struct sockaddr_storage their_addr;
-	int last_int;
+	char last_char;
 	socklen_t addr_size;
 
 public:
@@ -58,8 +58,8 @@ public:
 
 	void listen(int n);
 	void accept();
-	bool recieveInt(); //TODO: Make sure that java is sending ints
-	int getLastInt();
+	bool recieveByte(); //TODO: Make sure that java is sending ints
+	char getLastByte();
 	void sendDouble(double data);
 	void closeClient();
 

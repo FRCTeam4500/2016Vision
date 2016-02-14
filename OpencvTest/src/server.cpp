@@ -24,13 +24,13 @@ void serve(ImageReport** report){
 		printf("Accepted\n");
 		while(true){
 
-			if(!s.recieveInt()){	//if the client closes the connection
+			if(!s.recieveByte()){	//if the client closes the connection
 				s.closeClient();
 				break;
 			}
 			printf("Recieved\n");
 
-			int needed = s.getLastInt();
+			int needed = s.getLastByte();
 			printf("%d\n", needed);
 			if(needed == 0){
 				s.sendDouble((*report) -> angles.y);

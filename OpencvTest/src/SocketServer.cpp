@@ -36,7 +36,7 @@ SocketServer::SocketServer(std::string port) {
 
 	addr_size = sizeof(their_addr);
 
-	last_int = 0;
+	last_char = 0;
 
 }
 
@@ -48,21 +48,19 @@ void SocketServer::accept(){
 	new_sd = ::accept(socketfd, (struct sockaddr *)&their_addr, &addr_size);
 }
 
-bool SocketServer::recieveInt(){
+bool SocketServer::recieveByte(){
 	ssize_t bytes_recieved;
-	int incomming_int;
+	char incomming_char;
 
-	bytes_recieved = recv(new_sd, &incomming_int, 4, 0);
+	bytes_recieved = recv(new_sd, &incomming_char, 1, 0);
 
-	incomming_int = ntohl(incomming_int);
 
-	last_int = incomming_int;
 
 	// If no data arrives, the program will just wait here until some data arrives.
 	if (bytes_recieved == 0 || bytes_recieved == -1){
 		return false;
 	}
-
+	last_char = incomming_char;
 	return true;
 
 }
@@ -72,8 +70,8 @@ void SocketServer::sendDouble(double data){
 	ssize_t bytes_sent = send(new_sd, doubleString, 8, 0);
 }
 
-int SocketServer::getLastInt(){
-	return last_int;
+char SocketServer::getLastByte(){
+	return last_char;
 }
 
 void SocketServer::closeClient(){
