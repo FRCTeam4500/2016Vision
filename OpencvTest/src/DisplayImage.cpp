@@ -100,13 +100,13 @@ int main( int argc, char** argv ){
 	while(true){
 		usbCam.read(img);
 
-		imshow("image", img);
+		//imshow("image", img);
 
-		int key = waitKey(1);
+		//int key = waitKey(1);
 
-		if((key&0xFF) == 113){
-			break;
-		}
+		//if((key&0xFF) == 113){
+		//	break;
+		//}
 
 		ImageReport report = getImageReport(img);
 
