@@ -40,6 +40,8 @@
 
 
 
+
+
 class SocketServer {
 private:
 	int status;
@@ -62,6 +64,9 @@ public:
 	char getLastByte();
 	void sendDouble(double data);
 	void closeClient();
+	int recieveString(char * buf, int len);
+	bool sendall(char * buf, int len);
+	//bool connected();
 
 
 	virtual ~SocketServer();

@@ -85,3 +85,30 @@ SocketServer::~SocketServer() {
 	closeClient();
 }
 
+int SocketServer::recieveString(char * buf, int len){
+	return recv(new_sd, buf, len, 0);
+
+}
+
+bool SocketServer::sendall(char * buf, int len){
+	while (len > 0){
+		int i = send(new_sd, buf, len, 0);
+		if (i < 1){
+			return false;
+		}
+		buf += i;
+		len -= i;
+	}
+	return true;
+}
+
+/*bool SocketServer::connected(){
+     char buf;
+     int err = recv(new_sd, &buf, 1, MSG_PEEK);
+     if(err == SOCKET_ERROR){
+          if(WSAGetLastError() != WSAEWOULDBLOCK){
+        	  return false;
+          }
+     }
+     return true;
+}*/

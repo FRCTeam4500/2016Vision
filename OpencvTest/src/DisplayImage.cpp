@@ -87,15 +87,18 @@ struct DoubleReportBuffer{
 int main( int argc, char** argv ){
 	DoubleReportBuffer reportBuffer;
 
-	std::thread server (serve, &reportBuffer.location);
-	server.detach();
+	std::thread server_thread (serve, &reportBuffer.location);
+	server_thread.detach();
+
+	std::thread serverMJPEG_thread (serveMJPEG, &reportBuffer.location);
+	serverMJPEG_thread.detach();
 
 	VideoCapture usbCam(0);
 
 	usbCam.set(CV_CAP_PROP_BRIGHTNESS, .05);
 	Mat img;
 	ImageReport r;
-	r.angles = Point2d(100.0, 0.0);
+	r.angles = Point2d(0.0, 0.0);
 	reportBuffer.set(r);
 	while(true){
 		usbCam.read(img);

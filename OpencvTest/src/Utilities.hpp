@@ -62,6 +62,7 @@ struct ImageReport{
 	cv::Point2d angles;
 	bool goalIsPresent;
 	Contour bestContour;
+	cv::Mat image;
 };
 
 

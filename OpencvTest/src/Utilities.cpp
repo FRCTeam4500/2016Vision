@@ -492,6 +492,7 @@ ImageReport getImageReport(Mat image){
 	report.angles = ang;
 	report.goalIsPresent = true;
 	report.bestContour.contours.push_back(bestContour);
+	report.image = image;
 
 	return report;
 
