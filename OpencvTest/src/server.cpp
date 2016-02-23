@@ -52,38 +52,40 @@ void serve(ImageReport** report){
 void serveMJPEG(ImageReport** report){
 	SocketServer s(MJPEG_PORTNUM);
 	s.listen(5);
-	char * buf = (char*)malloc(sizeof(char)*100);
+	char * buf = (char*)malloc(sizeof(char)*1001);
 	std::vector<unsigned char> imageBuffer;
-	char * headerbuf = (char*) malloc(sizeof(char)*100);
+	char * headerbuf = (char*) malloc(sizeof(char)*101);
 	//std::vector<int> p;
 	while(true){
 		s.accept();
-		int recieved = s.recieveString(buf, 100);
+		int recieved = s.recieveString(buf, 1000);
+		buf[recieved] = 0;
+		printf("%s", buf);
 		if(contains(buf, recieved, "mjpeg", 5)){
-			s.sendall(TEXT_RESPONSE, strlen(TEXT_RESPONSE));
 
-			s.closeClient();
-		}else{
 			if(s.sendall(JPEG_RESPONSE, strlen(JPEG_RESPONSE))){
-				cv::Mat img = (*report)->image;
-				cv::imencode(".jpg", img, imageBuffer);
+				bool shouldContinue = true;
 
-
-				int headerLength = sprintf(headerbuf, JPEG_HEADER, imageBuffer.size());
-
-
-
-				while(s.sendall(headerbuf, headerLength) && s.sendall((char*)imageBuffer.data(), imageBuffer.size())) {
+				while(shouldContinue) {
 					cv::Mat img = (*report)->image;
-					cv::imencode(".jpg", img, imageBuffer);
+					cv::imencode(".jpeg", img, imageBuffer);
 
 
 					int headerLength = sprintf(headerbuf, JPEG_HEADER, imageBuffer.size());
+					shouldContinue = s.sendall(headerbuf, headerLength) && s.sendall((char*)imageBuffer.data(), imageBuffer.size());
 				}
 
-				s.closeClient();
+
 			}
+
+		}else if(contains(buf, recieved, "favicon.ico", 11)){
+			s.sendall("HTTP/1.1 404 Not Found\r\n\r\n", 26);
+
+
+		}else{
+			s.sendall(TEXT_RESPONSE, strlen(TEXT_RESPONSE));
 		}
+		s.closeClient();
 	}
 
 	free(buf);

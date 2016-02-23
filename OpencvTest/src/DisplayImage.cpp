@@ -93,9 +93,9 @@ int main( int argc, char** argv ){
 	std::thread serverMJPEG_thread (serveMJPEG, &reportBuffer.location);
 	serverMJPEG_thread.detach();
 
-	VideoCapture usbCam(0);
+	VideoCapture usbCam(1);
 
-	usbCam.set(CV_CAP_PROP_BRIGHTNESS, .05);
+	usbCam.set(CV_CAP_PROP_BRIGHTNESS, .1);
 	Mat img;
 	ImageReport r;
 	r.angles = Point2d(0.0, 0.0);

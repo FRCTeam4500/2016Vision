@@ -312,7 +312,7 @@ std::vector<Point> pickBestContour(Contour contours){
 		}
 	}
 
-	printf("Best Score: %f\n", scores[maxIndex]);
+	//printf("Best Score: %f\n", scores[maxIndex]);
 
 	delete[] scores;
 
